@@ -22,36 +22,41 @@ function ApplicationForm({ job, onClose, onSuccess }) {
   };
 
   const handleSubmit = async () => {
-    if (!formData.resume || !formData.name || !formData.email) {
-      alert("Fill required fields!");
-      return;
-    }
+  if (!formData.resume || !formData.name || !formData.email) {
+    alert("Fill required fields!");
+    return;
+  }
 
-    const data = new FormData();
-    data.append("studentId", 1);
-    data.append("jobId", job.id);
-    data.append("resume", formData.resume);
+  if (isNaN(formData.cgpa)) {
+    alert("Enter valid CGPA");
+    return;
+  }
 
-    data.append("name", formData.name);
-    data.append("email", formData.email);
-    data.append("phone", formData.phone);
-    data.append("cgpa", formData.cgpa);
-    data.append("skills", formData.skills);
-    data.append("experience", formData.experience);
-    data.append("coverLetter", formData.coverLetter);
+  const data = new FormData();
+  data.append("studentId", 1);
+  data.append("jobId", job.id);
+  data.append("resume", formData.resume);
 
-    try {
-      await applyToJob(data);
-      alert("✅ Applied successfully!");
+  data.append("name", formData.name);
+  data.append("email", formData.email);
+  data.append("phone", formData.phone);
+  data.append("cgpa", parseFloat(formData.cgpa)); // ✅ FIX
 
-      onSuccess();
-      onClose();
-    } catch (err) {
-      console.error(err);
-      alert("❌ Error applying");
-    }
-  };
+  data.append("skills", formData.skills);
+  data.append("experience", formData.experience);
+  data.append("coverLetter", formData.coverLetter);
 
+  try {
+    await applyToJob(data);
+    alert("✅ Applied successfully!");
+
+    onSuccess();
+    onClose();
+  } catch (err) {
+    console.error(err);
+    alert("❌ Error applying");
+  }
+};
   return (
     <div style={styles.overlay}>
       <div style={styles.modal}>

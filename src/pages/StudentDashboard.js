@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getJobs } from "../services/jobService";
 import { getApplicationsByStudent } from "../services/applicationService";
-// import ApplicationForm from "./ApplicationForm";
 import ApplicationForm from "../components/ApplicationForm";
 
 function StudentDashboard() {
@@ -51,7 +50,11 @@ function StudentDashboard() {
           appliedJobs.map((job) => (
             <div key={job.id} style={styles.card}>
               <h3>{job.title}</h3>
-              <p>{job.company?.name}</p>
+
+              <p><b>Company:</b> {job.companyName}</p>
+              <p><b>Salary:</b> ₹{job.salary}</p>
+              <p><b>Type:</b> {job.jobType}</p>
+
               <span style={styles.applied}>Applied ✅</span>
             </div>
           ))
@@ -63,22 +66,31 @@ function StudentDashboard() {
       {/* ✅ Available Jobs */}
       <section>
         <h2>Available Jobs</h2>
-        {availableJobs.map((job) => (
-          <div key={job.id} style={styles.card}>
-            <h3>{job.title}</h3>
-            <p>{job.company?.name}</p>
+        {availableJobs.length > 0 ? (
+          availableJobs.map((job) => (
+            <div key={job.id} style={styles.card}>
+              <h3>{job.title}</h3>
 
-            <button
-              style={styles.button}
-              onClick={() => setSelectedJob(job)}
-            >
-              Apply
-            </button>
-          </div>
-        ))}
+              <p><b>Company:</b> {job.companyName}</p>
+              <p><b>Salary:</b> ₹{job.salary}</p>
+              <p><b>Type:</b> {job.jobType}</p>
+              <p><b>Location:</b> {job.location}</p>
+              <p><b>Skills:</b> {job.skillsRequired}</p>
+
+              <button
+                style={styles.button}
+                onClick={() => setSelectedJob(job)}
+              >
+                Apply
+              </button>
+            </div>
+          ))
+        ) : (
+          <p>No available jobs</p>
+        )}
       </section>
 
-      {/* ✅ FORM POPUP */}
+      {/* ✅ Application Form Popup */}
       {selectedJob && (
         <ApplicationForm
           job={selectedJob}
@@ -91,20 +103,31 @@ function StudentDashboard() {
 }
 
 const styles = {
-  container: { padding: "20px", maxWidth: "900px", margin: "auto" },
-  heading: { textAlign: "center" },
+  container: {
+    padding: "20px",
+    maxWidth: "900px",
+    margin: "auto",
+  },
+  heading: {
+    textAlign: "center",
+    marginBottom: "20px",
+  },
   card: {
     border: "1px solid #ddd",
-    padding: "10px",
+    padding: "15px",
     margin: "10px 0",
     borderRadius: "8px",
+    background: "#fff",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
   },
   button: {
     background: "#2563eb",
     color: "white",
-    padding: "8px",
+    padding: "8px 12px",
     border: "none",
+    borderRadius: "5px",
     cursor: "pointer",
+    marginTop: "10px",
   },
   applied: {
     color: "green",
