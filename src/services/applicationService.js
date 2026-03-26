@@ -1,24 +1,23 @@
-import axios from "../api/axiosConfig";
+import axios from "axios";
 
-// ✅ APPLY WITH FILE UPLOAD (FormData)
-export const applyToJob = (formData) => {
-  return axios.post("/applications/upload", formData, {
+const API = "http://localhost:8080/applications";
+
+const AUTH = {
+  username: "admin",
+  password: "admin123",
+};
+
+export const applyToJob = (data) => {
+  return axios.post(`${API}/upload`, data, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
-    auth: {
-      username: "admin",
-      password: "admin123",
-    },
+    auth: AUTH,
   });
 };
 
-// ✅ GET APPLICATIONS BY STUDENT
 export const getApplicationsByStudent = (studentId) => {
-  return axios.get(`/applications/student/${studentId}`, {
-    auth: {
-      username: "admin",
-      password: "admin123",
-    },
+  return axios.get(`${API}/student/${studentId}`, {
+    auth: AUTH,
   });
 };
