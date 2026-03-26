@@ -2,6 +2,7 @@ import React, { useState } from "react";
 // import LoginPage from "./pages/LoginPage";
 import LoginPage from "./pages/LoginPage";
 import StudentDashboard from "./pages/StudentDashboard";
+import RecruiterDashboard from "./pages/RecruiterDashboard";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -17,14 +18,19 @@ function App() {
   }
 
   // 🏢 Recruiter (placeholder)
+  // if (user.role === "recruiter") {
+  //   return (
+  //     <div style={{ textAlign: "center", marginTop: "100px" }}>
+  //       <h1>🏢 Recruiter Dashboard</h1>
+  //       <p>Coming soon...</p>
+  //     </div>
+  //   );
+  // }
+
   if (user.role === "recruiter") {
-    return (
-      <div style={{ textAlign: "center", marginTop: "100px" }}>
-        <h1>🏢 Recruiter Dashboard</h1>
-        <p>Coming soon...</p>
-      </div>
-    );
+    return <RecruiterDashboard user={user} />;
   }
+
 
   // 🏫 Department (placeholder)
   if (user.role === "department") {

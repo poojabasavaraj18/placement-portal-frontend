@@ -6,6 +6,11 @@ const AUTH = {
   username: "admin",
   password: "admin123",
 };
+export const getApplicationsByJob = (jobId) => {
+  return axios.get(`${API}/job/${jobId}`, {
+    auth: AUTH,
+  });
+};
 
 export const applyToJob = (data) => {
   return axios.post(`${API}/upload`, data, {
