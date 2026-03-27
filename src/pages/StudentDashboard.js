@@ -27,24 +27,27 @@ function StudentDashboard() {
       .catch((err) => console.error(err));
   };
 
-  const appliedJobIds = applications.map((app) =>
-    Number(app.jobPost?.id)
-  );
+  // const appliedJobIds = applications.map((app) =>
+  //   Number(app.jobPost?.id)
+  // );
 
-  const appliedJobs = jobs.filter((job) =>
-    appliedJobIds.includes(Number(job.id))
-  );
+  // const appliedJobs = jobs.filter((job) =>
+  //   appliedJobIds.includes(Number(job.id))
+  // );
+  const appliedJobs = applications;
 
-  const availableJobs = jobs.filter(
-    (job) => !appliedJobIds.includes(Number(job.id))
-  );
+const appliedTitles = applications.map((app) => app.jobTitle);
+
+const availableJobs = jobs.filter(
+  (job) => !appliedTitles.includes(job.title)
+);
 
   return (
     <div style={styles.container}>
       <h1 style={styles.heading}>🎓 Student Dashboard</h1>
 
       {/* ✅ Applied Jobs */}
-      <section>
+      {/* <section>
         <h2>Applied Jobs</h2>
         {appliedJobs.length > 0 ? (
           appliedJobs.map((job) => (
@@ -61,7 +64,39 @@ function StudentDashboard() {
         ) : (
           <p>No applied jobs</p>
         )}
-      </section>
+      </section> */}
+      {appliedJobs.length > 0 ? (
+ applications.map((app) => (
+  <div key={app.id} style={styles.card}>
+    <h3>{app.jobTitle}</h3>
+
+    <p><b>Company:</b> {app.companyName}</p>
+
+    <p>
+      <b>Status:</b>{" "}
+      <span
+        style={{
+          fontWeight: "bold",
+          color:
+            app.status === "SELECTED"
+              ? "green"
+              : app.status === "REJECTED"
+              ? "red"
+              : app.status === "HR"
+              ? "purple"
+              : app.status === "ROUND2"
+              ? "blue"
+              : "orange",
+        }}
+      >
+        {app.status}
+      </span>
+    </p>
+  </div>
+))
+) : (
+  <p>No applied jobs</p>
+)}
 
       {/* ✅ Available Jobs */}
       <section>
