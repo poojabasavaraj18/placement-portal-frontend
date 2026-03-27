@@ -349,7 +349,8 @@ function RecruiterDashboard() {
                 <p>{app.coverLetter}</p>
 
                 <a
-                  href={`http://localhost:8080/${app.resumePath}`}
+                  // href={`http://localhost:8080/${app.resumePath}`}
+                  href={`http://localhost:8080/files/${app.resumePath}`}
                   target="_blank"
                   rel="noreferrer"
                 >
