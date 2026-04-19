@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { applyToJob } from "../services/applicationService";
 
-function ApplicationForm({ job, onClose, onSuccess }) {
+function ApplicationForm({ job, onClose, onSuccess, viewMode = false, data }) {
+
   const [formData, setFormData] = useState({
     resume: null,
     name: "",
@@ -13,6 +14,22 @@ function ApplicationForm({ job, onClose, onSuccess }) {
     coverLetter: "",
   });
 
+  // 🔥 Prefill when in view mode
+  useEffect(() => {
+    if (viewMode && data) {
+      setFormData({
+        resume: null,
+        name: data.name || "",
+        email: data.email || "",
+        phone: data.phone || "",
+        cgpa: data.cgpa || "",
+        skills: data.skills || "",
+        experience: data.experience || "",
+        coverLetter: data.coverLetter || "",
+      });
+    }
+  }, [viewMode, data]);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -22,63 +39,79 @@ function ApplicationForm({ job, onClose, onSuccess }) {
   };
 
   const handleSubmit = async () => {
-  if (!formData.resume || !formData.name || !formData.email) {
-    alert("Fill required fields!");
-    return;
-  }
+    if (viewMode) return;
 
-  if (isNaN(formData.cgpa)) {
-    alert("Enter valid CGPA");
-    return;
-  }
+    if (!formData.resume || !formData.name || !formData.email) {
+      alert("Fill required fields!");
+      return;
+    }
 
-  const data = new FormData();
-  data.append("studentId", 1);
-  data.append("jobId", job.id);
-  data.append("resume", formData.resume);
+    if (isNaN(formData.cgpa)) {
+      alert("Enter valid CGPA");
+      return;
+    }
 
-  data.append("name", formData.name);
-  data.append("email", formData.email);
-  data.append("phone", formData.phone);
-  data.append("cgpa", parseFloat(formData.cgpa)); // ✅ FIX
+    const form = new FormData();
+    form.append("studentId", 1);
+    form.append("jobId", job.id);
+    form.append("resume", formData.resume);
 
-  data.append("skills", formData.skills);
-  data.append("experience", formData.experience);
-  data.append("coverLetter", formData.coverLetter);
+    form.append("name", formData.name);
+    form.append("email", formData.email);
+    form.append("phone", formData.phone);
+    form.append("cgpa", parseFloat(formData.cgpa));
 
-  try {
-    await applyToJob(data);
-    alert("✅ Applied successfully!");
+    form.append("skills", formData.skills);
+    form.append("experience", formData.experience);
+    form.append("coverLetter", formData.coverLetter);
 
-    onSuccess();
-    onClose();
-  } catch (err) {
-    console.error(err);
-    alert("❌ Error applying");
-  }
-};
+    try {
+      await applyToJob(form);
+      alert("✅ Applied successfully!");
+      onSuccess();
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert("❌ Error applying");
+    }
+  };
+
   return (
     <div style={styles.overlay}>
       <div style={styles.modal}>
-        <h2>Apply for {job.title}</h2>
+        <h2>{viewMode ? "Application Details" : `Apply for ${job.title}`}</h2>
 
-        <input type="file" onChange={handleFileChange} />
-        <input name="name" placeholder="Name" onChange={handleChange} />
-        <input name="email" placeholder="Email" onChange={handleChange} />
-        <input name="phone" placeholder="Phone" onChange={handleChange} />
-        <input name="cgpa" placeholder="CGPA" onChange={handleChange} />
+        {!viewMode && <input type="file" onChange={handleFileChange} />}
 
-        <input name="skills" placeholder="Skills" onChange={handleChange} />
-        <input name="experience" placeholder="Experience" onChange={handleChange} />
+        <input name="name" value={formData.name} onChange={handleChange} readOnly={viewMode} placeholder="Name" />
+        <input name="email" value={formData.email} onChange={handleChange} readOnly={viewMode} placeholder="Email" />
+        <input name="phone" value={formData.phone} onChange={handleChange} readOnly={viewMode} placeholder="Phone" />
+        <input name="cgpa" value={formData.cgpa} onChange={handleChange} readOnly={viewMode} placeholder="CGPA" />
+
+        <input name="skills" value={formData.skills} onChange={handleChange} readOnly={viewMode} placeholder="Skills" />
+        <input name="experience" value={formData.experience} onChange={handleChange} readOnly={viewMode} placeholder="Experience" />
 
         <textarea
           name="coverLetter"
-          placeholder="Cover Letter"
+          value={formData.coverLetter}
           onChange={handleChange}
+          readOnly={viewMode}
+          placeholder="Cover Letter"
         />
 
-        <button onClick={handleSubmit}>Submit</button>
-        <button onClick={onClose}>Cancel</button>
+        {/* 🔥 Resume */}
+        {viewMode && data?.resumePath && (
+          <a
+            href={`http://localhost:8080/files/${data.resumePath}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            View Resume
+          </a>
+        )}
+
+        {!viewMode && <button onClick={handleSubmit}>Submit</button>}
+        <button onClick={onClose}>Close</button>
       </div>
     </div>
   );
@@ -87,10 +120,7 @@ function ApplicationForm({ job, onClose, onSuccess }) {
 const styles = {
   overlay: {
     position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    top: 0, left: 0, right: 0, bottom: 0,
     background: "rgba(0,0,0,0.5)",
   },
   modal: {

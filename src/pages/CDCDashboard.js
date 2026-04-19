@@ -1,60 +1,97 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import ApplicationForm from "../components/ApplicationForm";
 
 function CDCDashboard() {
 
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
   const [profile, setProfile] = useState(null);
+  const [dashboard, setDashboard] = useState(null);
 
   const [selectedJob, setSelectedJob] = useState(null);
-  const [selectedApp, setSelectedApp] = useState(null);
+  const [showForm, setShowForm] = useState(false);
 
-  // 🔥 Load all jobs
+  // 🔥 Load jobs + dashboard data
   useEffect(() => {
     axios.get("http://localhost:8080/cdc/jobs")
       .then(res => setJobs(res.data))
       .catch(err => console.error(err));
+
+    axios.get("http://localhost:8080/cdc/dashboard")
+      .then(res => setDashboard(res.data))
+      .catch(err => console.error(err));
   }, []);
 
-  // 🔥 When "Applied Students" clicked
+  // 🔥 View applicants
   const handleViewApplicants = (jobId) => {
     setSelectedJob(jobId);
-    setSelectedApp(null);
-    setProfile(null);
 
     axios.get(`http://localhost:8080/cdc/jobs/${jobId}/applications`)
       .then(res => setApplications(res.data))
       .catch(err => console.error(err));
   };
 
-  // 🔥 When student clicked
+  // 🔥 View full application
   const handleViewProfile = (appId) => {
-    setSelectedApp(appId);
-
     axios.get(`http://localhost:8080/cdc/application/${appId}`)
-      .then(res => setProfile(res.data))
+      .then(res => {
+        setProfile(res.data);
+        setShowForm(true);
+      })
       .catch(err => console.error(err));
   };
 
-  // ===========================
-  // 🔥 VIEW 1 → JOBS
-  // ===========================
+  // ================= JOBS VIEW =================
   if (!selectedJob) {
     return (
       <div style={{ padding: "20px" }}>
         <h2>CDC Dashboard</h2>
 
+        {/* 🔥 SUMMARY CARDS */}
+        {dashboard && (
+          <div style={{
+            display: "flex",
+            gap: "20px",
+            marginBottom: "20px",
+            flexWrap: "wrap"
+          }}>
+
+            <div style={styles.cardBox}>
+              <h3>Total Students</h3>
+              <p>{dashboard.totalStudents}</p>
+            </div>
+
+            <div style={styles.cardBox}>
+              <h3>Total Jobs</h3>
+              <p>{dashboard.totalJobs}</p>
+            </div>
+
+            <div style={styles.cardBox}>
+              <h3>Placed Students</h3>
+              <p>{dashboard.placedStudents}</p>
+            </div>
+
+            <div style={styles.cardBox}>
+              <h3>Placement %</h3>
+              <p>{dashboard.placementPercentage.toFixed(2)}%</p>
+            </div>
+
+          </div>
+        )}
+
+        {/* 🔥 AVAILABLE JOBS HEADING */}
+        <h3 style={{ marginTop: "20px" }}>Available Jobs</h3>
+
+        {/* 🔥 JOB LIST */}
         {jobs.map(job => (
-          <div key={job.jobId}
-               style={{
-                 border: "1px solid gray",
-                 padding: "15px",
-                 margin: "10px",
-                 borderRadius: "8px"
-               }}>
-               
-            <h3>{job.jobTitle}</h3>
+          <div key={job.jobId} style={styles.card}>
+
+            <div style={styles.jobHeader}>
+              <h3>{job.companyName}</h3>
+              <p><b>Role:</b> {job.jobTitle}</p>
+              <p><b>Package:</b> ₹{job.salary}</p>
+            </div>
 
             <button onClick={() => handleViewApplicants(job.jobId)}>
               Applied Students ({job.appliedCount})
@@ -66,63 +103,58 @@ function CDCDashboard() {
     );
   }
 
-  // ===========================
-  // 🔥 VIEW 2 → STUDENTS
-  // ===========================
-  if (selectedJob && !selectedApp) {
-    return (
-      <div style={{ padding: "20px" }}>
-        <h2>Applicants</h2>
+  // ================= APPLICANTS VIEW =================
+  return (
+    <div style={{ padding: "20px" }}>
+      <h2>Applicants</h2>
 
-        <button onClick={() => setSelectedJob(null)}>⬅ Back</button>
+      <button onClick={() => setSelectedJob(null)}>⬅ Back</button>
 
-        {applications.map(app => (
-          <div key={app.applicationId}
-               onClick={() => handleViewProfile(app.applicationId)}
-               style={{
-                 border: "1px solid gray",
-                 padding: "10px",
-                 margin: "10px",
-                 cursor: "pointer"
-               }}>
+      {applications.map(app => (
+        <div key={app.applicationId} style={styles.card}>
+          <p><b>{app.studentName}</b></p>
+          <p>Status: {app.status}</p>
 
-            <p><b>{app.studentName}</b></p>
-            <p>Status: {app.status}</p>
+          <button onClick={() => handleViewProfile(app.applicationId)}>
+            View Application
+          </button>
+        </div>
+      ))}
 
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  // ===========================
-  // 🔥 VIEW 3 → PROFILE
-  // ===========================
-  if (selectedApp && profile) {
-    return (
-      <div style={{ padding: "20px" }}>
-        <h2>Student Profile</h2>
-
-        <button onClick={() => setSelectedApp(null)}>⬅ Back</button>
-
-        <p><b>Name:</b> {profile.name}</p>
-        <p><b>Email:</b> {profile.email}</p>
-        <p><b>Phone:</b> {profile.phone}</p>
-        <p><b>CGPA:</b> {profile.cgpa}</p>
-        <p><b>Skills:</b> {profile.skills}</p>
-        <p><b>Status:</b> {profile.status}</p>
-
-        <a
-          href={`http://localhost:8080/files/${profile.resumePath}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          View Resume
-        </a>
-      </div>
-    );
-  }
-
+      {/* 🔥 POPUP FORM */}
+      {showForm && profile && (
+        <ApplicationForm
+          job={profile.jobPost}
+          data={profile}
+          viewMode={true}
+          onClose={() => setShowForm(false)}
+        />
+      )}
+    </div>
+  );
 }
+
+const styles = {
+  card: {
+    border: "1px solid gray",
+    padding: "15px",
+    margin: "10px",
+    borderRadius: "8px"
+  },
+
+  cardBox: {
+    border: "1px solid gray",
+    padding: "15px",
+    borderRadius: "10px",
+    width: "180px",
+    textAlign: "center",
+    backgroundColor: "#f5f5f5",
+    boxShadow: "0 2px 5px rgba(0,0,0,0.1)"
+  },
+
+  jobHeader: {
+    marginBottom: "10px"
+  }
+};
 
 export default CDCDashboard;
