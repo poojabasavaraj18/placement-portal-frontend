@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import LoginPage from "./pages/LoginPage";
 import StudentDashboard from "./pages/StudentDashboard";
 import RecruiterDashboard from "./pages/RecruiterDashboard";
+import CDCDashboard from "./pages/CDCDashboard";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -43,14 +44,9 @@ function App() {
   }
 
   // 🧑‍💼 CDC (placeholder)
-  if (user.role === "cdc") {
-    return (
-      <div style={{ textAlign: "center", marginTop: "100px" }}>
-        <h1>🧑‍💼 CDC Dashboard</h1>
-        <p>Coming soon...</p>
-      </div>
-    );
-  }
+ if (user.role === "cdc") {
+  return <CDCDashboard user={user} />;
+}
 
   return <h1>Invalid Role</h1>;
 }
