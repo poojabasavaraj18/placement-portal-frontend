@@ -50,20 +50,25 @@ function ApplicationForm({ job, onClose, onSuccess, viewMode = false, data }) {
       alert("Enter valid CGPA");
       return;
     }
-
+    const user = JSON.parse(localStorage.getItem("user")); 
     const form = new FormData();
-    form.append("studentId", 1);
+    // form.append("studentId", 1);
+    form.append("studentId", user.id);
     form.append("jobId", job.id);
     form.append("resume", formData.resume);
 
     form.append("name", formData.name);
     form.append("email", formData.email);
     form.append("phone", formData.phone);
-    form.append("cgpa", parseFloat(formData.cgpa));
+    // form.append("cgpa", parseFloat(formData.cgpa));
+    form.append("cgpa", formData.cgpa ? parseFloat(formData.cgpa) : 0);
 
-    form.append("skills", formData.skills);
-    form.append("experience", formData.experience);
-    form.append("coverLetter", formData.coverLetter);
+    // form.append("skills", formData.skills);
+    // form.append("experience", formData.experience);
+    // form.append("coverLetter", formData.coverLetter);
+    form.append("skills", formData.skills || "");
+    form.append("experience", formData.experience || "");
+    form.append("coverLetter", formData.coverLetter || "");
 
     try {
       await applyToJob(form);

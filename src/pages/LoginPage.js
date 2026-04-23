@@ -1,17 +1,41 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 function LoginPage({ onLogin }) {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("student");
 
-  const handleLogin = () => {
-    if (!username || !password) {
-      alert("Enter username and password");
+  const handleLogin = async () => {
+    if (!email || !password) {
+      alert("Enter email and password");
       return;
     }
 
-    onLogin({ username, password, role });
+    try {
+      // 🔥 Call backend
+      const response = await axios.post(
+        "http://localhost:8080/students/login",
+        {
+          email,
+          password,
+        }
+      );
+
+      const student = response.data;
+
+      // 🔥 Store logged-in user
+      // localStorage.setItem("student", JSON.stringify(student));
+      localStorage.setItem("user", JSON.stringify(student));
+
+      alert("Login successful!");
+
+      // 🔥 Pass to parent if needed
+      onLogin(student);
+
+    } catch (error) {
+      alert("Invalid email or password");
+    }
   };
 
   return (
@@ -19,9 +43,9 @@ function LoginPage({ onLogin }) {
       <h2>Placement Portal Login</h2>
 
       <input
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         style={styles.input}
       />
 
@@ -33,7 +57,7 @@ function LoginPage({ onLogin }) {
         style={styles.input}
       />
 
-      {/* 🔥 ROLE SELECTION */}
+      {/* Optional role dropdown (can keep or remove later) */}
       <select
         value={role}
         onChange={(e) => setRole(e.target.value)}

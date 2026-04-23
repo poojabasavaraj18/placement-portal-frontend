@@ -173,62 +173,65 @@
 // export default StudentDashboard;
 
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { getJobs } from "../services/jobService";
 import { getApplicationsByStudent } from "../services/applicationService";
 import ApplicationForm from "../components/ApplicationForm";
 
 function StudentDashboard() {
-
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
-
-  // 🔥 NEW: ANNOUNCEMENTS
   const [announcements, setAnnouncements] = useState([]);
 
-  const studentId = 1;
+  // 🔥 Logged-in user
+  const student = JSON.parse(localStorage.getItem("user"));
+  const studentId = student?.id;
 
-  useEffect(() => {
-    fetchData();
-
-    // 🔥 FETCH STUDENT ANNOUNCEMENTS
-    axios.get("http://localhost:8080/cdc/announcements/STUDENT")
-      .then(res => setAnnouncements(res.data))
-      .catch(err => console.error(err));
-
-  }, []);
-
-  const fetchData = () => {
+  // 🔁 Fetch data
+  const fetchData = useCallback(() => {
     getJobs()
       .then((res) => setJobs(res.data))
       .catch((err) => console.error(err));
 
-    getApplicationsByStudent(studentId)
-      .then((res) => {
-        const data = res.data.content || res.data || [];
-        setApplications(data);
-      })
+    if (studentId) {
+      getApplicationsByStudent(studentId)
+        .then((res) => {
+          const data = res.data.content || res.data || [];
+          setApplications(data);
+        })
+        .catch((err) => console.error(err));
+    }
+  }, [studentId]);
+
+  // 🔁 Load on mount
+  useEffect(() => {
+    fetchData();
+
+    axios
+      .get("http://localhost:8080/cdc/announcements/STUDENT")
+      .then((res) => setAnnouncements(res.data))
       .catch((err) => console.error(err));
-  };
+  }, [fetchData]);
 
-  const appliedJobs = applications;
-
-  const appliedTitles = applications.map((app) => app.jobTitle);
+  // ✅ SAFE FIX: normalize titles (prevents mismatch issues)
+  const appliedTitles = applications.map((app) =>
+    app.jobTitle?.toLowerCase().trim()
+  );
 
   const availableJobs = jobs.filter(
-    (job) => !appliedTitles.includes(job.title)
+    (job) =>
+      !appliedTitles.includes(job.title?.toLowerCase().trim())
   );
 
   return (
     <div style={styles.container}>
       <h1 style={styles.heading}>🎓 Student Dashboard</h1>
 
-      {/* 🔥 ANNOUNCEMENTS SECTION */}
+      {/* 📢 ANNOUNCEMENTS */}
       <section>
         <h2>📢 Announcements</h2>
-
         {announcements.length > 0 ? (
           announcements.map((a) => (
             <div key={a.id} style={styles.card}>
@@ -241,44 +244,31 @@ function StudentDashboard() {
         )}
       </section>
 
-      {/* ✅ Applied Jobs */}
-      {appliedJobs.length > 0 ? (
-        applications.map((app) => (
-          <div key={app.id} style={styles.card}>
-            <h3>{app.jobTitle}</h3>
+      {/* ✅ APPLIED JOBS */}
+      <section>
+        <h2>Applied Jobs</h2>
+        {applications.length > 0 ? (
+          applications.map((app) => (
+            <div key={app.id} style={styles.card}>
+              <h3>{app.jobTitle}</h3>
+              <p><b>Company:</b> {app.companyName}</p>
 
-            <p><b>Company:</b> {app.companyName}</p>
+              <p>
+                <b>Status:</b>{" "}
+                <span style={getStatusStyle(app.status)}>
+                  {app.status}
+                </span>
+              </p>
+            </div>
+          ))
+        ) : (
+          <p>No applied jobs</p>
+        )}
+      </section>
 
-            <p>
-              <b>Status:</b>{" "}
-              <span
-                style={{
-                  fontWeight: "bold",
-                  color:
-                    app.status === "SELECTED"
-                      ? "green"
-                      : app.status === "REJECTED"
-                      ? "red"
-                      : app.status === "HR"
-                      ? "purple"
-                      : app.status === "ROUND2"
-                      ? "blue"
-                      : "orange",
-                }}
-              >
-                {app.status}
-              </span>
-            </p>
-          </div>
-        ))
-      ) : (
-        <p>No applied jobs</p>
-      )}
-
-      {/* ✅ Available Jobs */}
+      {/* ✅ AVAILABLE JOBS */}
       <section>
         <h2>Available Jobs</h2>
-
         {availableJobs.length > 0 ? (
           availableJobs.map((job) => (
             <div key={job.id} style={styles.card}>
@@ -303,7 +293,7 @@ function StudentDashboard() {
         )}
       </section>
 
-      {/* ✅ Application Form */}
+      {/* 📄 APPLICATION FORM */}
       {selectedJob && (
         <ApplicationForm
           job={selectedJob}
@@ -315,6 +305,23 @@ function StudentDashboard() {
   );
 }
 
+// 🎨 STATUS COLORS
+const getStatusStyle = (status) => {
+  switch (status) {
+    case "SELECTED":
+      return { color: "green", fontWeight: "bold" };
+    case "REJECTED":
+      return { color: "red", fontWeight: "bold" };
+    case "HR":
+      return { color: "purple", fontWeight: "bold" };
+    case "ROUND2":
+      return { color: "blue", fontWeight: "bold" };
+    default:
+      return { color: "orange", fontWeight: "bold" };
+  }
+};
+
+// 🎨 STYLES
 const styles = {
   container: {
     padding: "20px",
