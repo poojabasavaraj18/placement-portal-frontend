@@ -3,6 +3,9 @@ import LoginPage from "./pages/LoginPage";
 import StudentDashboard from "./pages/StudentDashboard";
 import RecruiterDashboard from "./pages/RecruiterDashboard";
 import CDCDashboard from "./pages/CDCDashboard";
+// import AdminDashboard from "./components/AdminDashboard"; 
+import AdminDashboard from "./pages/AdminDashboard";
+// or correct path
 
 function App() {
   const [user, setUser] = useState(null);
@@ -27,6 +30,7 @@ function App() {
   if (role === "RECRUITER") {
     return <RecruiterDashboard user={user} />;
   }
+  if (role === "ADMIN") return <AdminDashboard />;
 
   // 🏫 Department Dashboard (placeholder)
   if (role === "DEPARTMENT") {
