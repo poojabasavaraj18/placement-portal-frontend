@@ -1,77 +1,187 @@
+
 // import React, { useState } from "react";
 // import axios from "axios";
 
 // function LoginPage({ onLogin }) {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [role, setRole] = useState("student");
+//   const [isRegister, setIsRegister] = useState(false);
 
+//   const [form, setForm] = useState({
+//     name: "",
+//     email: "",
+//     password: "",
+//     departmentId: "",
+//     usn: "",
+//     cgpa: "",
+//     year: "",
+//     phone: ""
+//   });
+
+//   const handleChange = (e) => {
+//     setForm({ ...form, [e.target.name]: e.target.value });
+//   };
+
+//   // 🔐 LOGIN
 //   const handleLogin = async () => {
-//     if (!email || !password) {
+//     if (!form.email || !form.password) {
 //       alert("Enter email and password");
 //       return;
 //     }
 
 //     try {
-//       // 🔥 Call backend
 //       const response = await axios.post(
 //         "http://localhost:8080/students/login",
 //         {
-//           email,
-//           password,
+//           email: form.email,
+//           password: form.password
 //         }
 //       );
 
-//       const student = response.data;
+//       const user = response.data;
 
-//       // 🔥 Store logged-in user
-//       // localStorage.setItem("student", JSON.stringify(student));
-//       localStorage.setItem("user", JSON.stringify(student));
+//       localStorage.setItem("user", JSON.stringify(user));
+//       onLogin(user);
 
 //       alert("Login successful!");
-
-//       // 🔥 Pass to parent if needed
-//       onLogin(student);
 
 //     } catch (error) {
 //       alert("Invalid email or password");
 //     }
 //   };
 
+
+//   const [departments, setDepartments] = useState([]);
+
+// useEffect(() => {
+//   axios.get("http://localhost:8080/departments")
+//     .then(res => setDepartments(res.data))
+//     .catch(err => console.error(err));
+// }, []);
+
+//   // 🆕 REGISTER
+//   const handleRegister = async () => {
+//     if (
+//       !form.name ||
+//       !form.email ||
+//       !form.password ||
+//       !form.departmentId
+//     ) {
+//       alert("Fill all required fields");
+//       return;
+//     }
+
+//     try {
+//       await axios.post(
+//         "http://localhost:8080/students/register",
+//         {
+//           name: form.name,
+//           email: form.email,
+//           password: form.password,
+//           usn: form.usn,
+//           cgpa: form.cgpa ? parseFloat(form.cgpa) : null,
+//           year: form.year ? parseInt(form.year) : null,
+//           phone: form.phone,
+//           department: {
+//             id: form.departmentId
+//           }
+//         }
+//       );
+
+//       alert("Registered successfully! Please login.");
+
+//       setIsRegister(false);
+
+//     } catch (error) {
+//       console.error(error);
+//       alert("Registration failed");
+//     }
+//   };
+
 //   return (
 //     <div style={styles.container}>
-//       <h2>Placement Portal Login</h2>
+//       <h2>{isRegister ? "Student Register" : "Placement Portal Login"}</h2>
 
+//       {/* 🔥 REGISTER FIELDS */}
+//       {isRegister && (
+//         <>
+//           <input
+//             name="name"
+//             placeholder="Name"
+//             onChange={handleChange}
+//             style={styles.input}
+//           />
+
+//           <select name="departmentId" onChange={handleChange} style={styles.input}>
+//   <option value="">Select Department</option>
+
+//   {departments.map(dept => (
+//     <option key={dept.id} value={dept.id}>
+//       {dept.name}
+//     </option>
+//   ))}
+// </select>
+
+//           <input
+//             name="usn"
+//             placeholder="USN"
+//             onChange={handleChange}
+//             style={styles.input}
+//           />
+
+//           <input
+//             name="cgpa"
+//             placeholder="CGPA"
+//             onChange={handleChange}
+//             style={styles.input}
+//           />
+
+//           <input
+//             name="year"
+//             placeholder="Year"
+//             onChange={handleChange}
+//             style={styles.input}
+//           />
+
+//           <input
+//             name="phone"
+//             placeholder="Phone"
+//             onChange={handleChange}
+//             style={styles.input}
+//           />
+//         </>
+//       )}
+
+//       {/* 🔑 COMMON FIELDS */}
 //       <input
+//         name="email"
 //         placeholder="Email"
-//         value={email}
-//         onChange={(e) => setEmail(e.target.value)}
+//         onChange={handleChange}
 //         style={styles.input}
 //       />
 
 //       <input
 //         type="password"
+//         name="password"
 //         placeholder="Password"
-//         value={password}
-//         onChange={(e) => setPassword(e.target.value)}
+//         onChange={handleChange}
 //         style={styles.input}
 //       />
 
-//       {/* Optional role dropdown (can keep or remove later) */}
-//       <select
-//         value={role}
-//         onChange={(e) => setRole(e.target.value)}
-//         style={styles.input}
+//       <button
+//         onClick={isRegister ? handleRegister : handleLogin}
+//         style={styles.button}
 //       >
-//         <option value="student">Student</option>
-//         <option value="recruiter">Recruiter</option>
-//         <option value="department">Department</option>
-//         <option value="cdc">CDC</option>
-//       </select>
-
-//       <button onClick={handleLogin} style={styles.button}>
-//         Login
+//         {isRegister ? "Register" : "Login"}
 //       </button>
+
+//       {/* 🔄 SWITCH */}
+//       <p
+//         style={{ color: "blue", cursor: "pointer", marginTop: "10px" }}
+//         onClick={() => setIsRegister(!isRegister)}
+//       >
+//         {isRegister
+//           ? "Already have an account? Login"
+//           : "New user? Register"}
+//       </p>
 //     </div>
 //   );
 // }
@@ -94,17 +204,32 @@
 // };
 
 // export default LoginPage;
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function LoginPage({ onLogin }) {
+
   const [isRegister, setIsRegister] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
+    departmentId: "",
+    usn: "",
+    cgpa: "",
+    year: "",
+    phone: ""
   });
+
+  const [departments, setDepartments] = useState([]);
+
+  // 🔥 Fetch departments (runs once)
+  useEffect(() => {
+    axios.get("http://localhost:8080/departments")
+      .then(res => setDepartments(res.data))
+      .catch(err => console.error(err));
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -122,14 +247,13 @@ function LoginPage({ onLogin }) {
         "http://localhost:8080/students/login",
         {
           email: form.email,
-          password: form.password,
+          password: form.password
         }
       );
 
       const user = response.data;
 
-      // localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("user", JSON.stringify(response.data));
+      localStorage.setItem("user", JSON.stringify(user));
       onLogin(user);
 
       alert("Login successful!");
@@ -141,30 +265,39 @@ function LoginPage({ onLogin }) {
 
   // 🆕 REGISTER
   const handleRegister = async () => {
-    if (!form.name || !form.email || !form.password) {
-      alert("Fill all fields");
+    if (
+      !form.name ||
+      !form.email ||
+      !form.password ||
+      !form.departmentId
+    ) {
+      alert("Fill all required fields");
       return;
     }
 
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:8080/students/register",
         {
           name: form.name,
           email: form.email,
           password: form.password,
+          usn: form.usn,
+          cgpa: form.cgpa ? parseFloat(form.cgpa) : null,
+          year: form.year ? parseInt(form.year) : null,
+          phone: form.phone,
+          department: {
+            id: parseInt(form.departmentId)
+          }
         }
       );
 
-      const user = response.data;
+      alert("Registered successfully! Please login.");
 
-      // 🔥 Auto login after register
-      localStorage.setItem("user", JSON.stringify(user));
-      onLogin(user);
-
-      alert("Registered & Logged in!");
+      setIsRegister(false);
 
     } catch (error) {
+      console.error(error);
       alert("Registration failed");
     }
   };
@@ -173,21 +306,65 @@ function LoginPage({ onLogin }) {
     <div style={styles.container}>
       <h2>{isRegister ? "Student Register" : "Placement Portal Login"}</h2>
 
-      {/* 👤 Name field only in Register */}
+      {/* 🔥 REGISTER FIELDS */}
       {isRegister && (
-        <input
-          name="name"
-          placeholder="Name"
-          value={form.name}
-          onChange={handleChange}
-          style={styles.input}
-        />
+        <>
+          <input
+            name="name"
+            placeholder="Name"
+            onChange={handleChange}
+            style={styles.input}
+          />
+
+          {/* ✅ Dynamic Department Dropdown */}
+          <select
+            name="departmentId"
+            onChange={handleChange}
+            style={styles.input}
+          >
+            <option value="">Select Department</option>
+
+            {departments.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.name}
+              </option>
+            ))}
+          </select>
+
+          <input
+            name="usn"
+            placeholder="USN"
+            onChange={handleChange}
+            style={styles.input}
+          />
+
+          <input
+            name="cgpa"
+            placeholder="CGPA"
+            onChange={handleChange}
+            style={styles.input}
+          />
+
+          <input
+            name="year"
+            placeholder="Year"
+            onChange={handleChange}
+            style={styles.input}
+          />
+
+          <input
+            name="phone"
+            placeholder="Phone"
+            onChange={handleChange}
+            style={styles.input}
+          />
+        </>
       )}
 
+      {/* 🔑 COMMON FIELDS */}
       <input
         name="email"
         placeholder="Email"
-        value={form.email}
         onChange={handleChange}
         style={styles.input}
       />
@@ -196,7 +373,6 @@ function LoginPage({ onLogin }) {
         type="password"
         name="password"
         placeholder="Password"
-        value={form.password}
         onChange={handleChange}
         style={styles.input}
       />
@@ -208,7 +384,7 @@ function LoginPage({ onLogin }) {
         {isRegister ? "Register" : "Login"}
       </button>
 
-      {/* 🔄 Toggle */}
+      {/* 🔄 TOGGLE */}
       <p
         style={{ color: "blue", cursor: "pointer", marginTop: "10px" }}
         onClick={() => setIsRegister(!isRegister)}
