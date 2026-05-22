@@ -1,107 +1,156 @@
-// import React, { useState } from "react";
-// import LoginPage from "./pages/LoginPage";
-// import StudentDashboard from "./pages/StudentDashboard";
-// import RecruiterDashboard from "./pages/RecruiterDashboard";
-// import CDCDashboard from "./pages/CDCDashboard";
-// // import AdminDashboard from "./components/AdminDashboard"; 
-// import AdminDashboard from "./pages/AdminDashboard";
-// import DepartmentDashboard from "./pages/DepartmentDashboard";
-// // or correct path
-
-// function App() {
-//   const [user, setUser] = useState(null);
-
-//   console.log("USER:", user);
-//   console.log("ROLE:", user?.role);
-
-//   // 🔐 Show login if not logged in
-//   if (!user) {
-//     return <LoginPage onLogin={setUser} />;
-//   }
-
-//   // 🔥 Normalize role (fix case mismatch issue permanently)
-//   const role = user.role?.toUpperCase();
-
-//   // 👩‍🎓 Student Dashboard
-//   if (role === "STUDENT") {
-//     return <StudentDashboard user={user} />;
-//   }
-
-//   // 🏢 Recruiter Dashboard
-//   if (role === "RECRUITER") {
-//     return <RecruiterDashboard user={user} />;
-//   }
-//   if (role === "ADMIN") return <AdminDashboard />;
-
-//   // 🏫 Department Dashboard (placeholder)
-//   if (role === "DEPARTMENT") {
-//   return <DepartmentDashboard user={user} />;
-//   }
-
-//   // 🧑‍💼 CDC Dashboard
-//   if (role === "CDC") {
-//     return <CDCDashboard user={user} />;
-//   }
-
-//   // ❌ Fallback (should not happen)
-//   return <h1>Invalid Role</h1>;
-// }
-
-
-
-// export default App;
 
 import React, { useState } from "react";
 
-// ✅ Make sure folder name is EXACTLY "pages" (lowercase)
+import {
+  Routes,
+  Route,
+  Navigate
+} from "react-router-dom";
+
 import LoginPage from "./pages/LoginPage";
 import StudentDashboard from "./pages/StudentDashboard";
 import RecruiterDashboard from "./pages/RecruiterDashboard";
 import CDCDashboard from "./pages/CDCDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import DepartmentDashboard from "./pages/DepartmentDashboard";
+import ApplicantsPage from "./pages/ApplicantsPage";
 
 function App() {
+
+  // ✅ KEEP USER AFTER REFRESH
   const [user, setUser] = useState(null);
 
   console.log("USER:", user);
   console.log("ROLE:", user?.role);
 
-  // 🔐 Show login if not logged in
+  // ✅ LOGIN FIRST
   if (!user) {
-    return <LoginPage onLogin={setUser} />;
+
+    return (
+      <LoginPage
+        onLogin={setUser}
+      />
+    );
+
   }
 
-  // 🔥 Normalize role (important)
-  const role = user.role?.toUpperCase();
+  // ✅ NORMALIZE ROLE
+  const role =
+    user.role?.toUpperCase();
 
-  // 👑 ADMIN
-  if (role === "ADMIN") {
-    return <AdminDashboard user={user} />;
-  }
+  return (
 
-  // 🏢 RECRUITER
-  if (role === "RECRUITER") {
-    return <RecruiterDashboard user={user} />;
-  }
+    <Routes>
 
-  // 🏫 DEPARTMENT
-  if (role === "DEPARTMENT") {
-    return <DepartmentDashboard user={user} />;
-  }
+      {/* 👩‍🎓 STUDENT */}
 
-  // 🧑‍💼 CDC
-  if (role === "CDC") {
-    return <CDCDashboard user={user} />;
-  }
+      {role === "STUDENT" && (
 
-  // 👩‍🎓 STUDENT
-  if (role === "STUDENT") {
-    return <StudentDashboard user={user} />;
-  }
+        <Route
+          path="/"
+          element={
+            <StudentDashboard
+              user={user}
+            />
+          }
+        />
 
-  // ❌ fallback
-  return <h1>Invalid Role</h1>;
+      )}
+
+      {/* 🏢 RECRUITER */}
+
+      {role === "RECRUITER" && (
+
+        <>
+
+          <Route
+            path="/"
+            element={
+              <RecruiterDashboard
+                user={user}
+              />
+            }
+          />
+
+          <Route
+            path="/applicants/:jobId"
+            element={
+              <ApplicantsPage />
+            }
+          />
+
+        </>
+
+      )}
+
+      {/* 👑 ADMIN */}
+
+      {role === "ADMIN" && (
+
+        <Route
+          path="/admin"
+          element={
+            <AdminDashboard
+              user={user}
+            />
+          }
+        />
+
+      )}
+
+      {/* 🏫 DEPARTMENT */}
+
+      {role === "DEPARTMENT" && (
+
+        <Route
+          path="/department"
+          element={
+            <DepartmentDashboard
+              user={user}
+            />
+          }
+        />
+
+      )}
+
+      {/* 🧑‍💼 CDC */}
+
+      {role === "CDC" && (
+
+        <Route
+          path="/cdc"
+          element={
+            <CDCDashboard
+              user={user}
+            />
+          }
+        />
+
+      )}
+
+      {/* ✅ FALLBACK ROUTING */}
+
+      <Route
+        path="*"
+        element={
+          role === "STUDENT"
+            ? <Navigate to="/" />
+            : role === "DEPARTMENT"
+            ? <Navigate to="/department" />
+            : role === "CDC"
+            ? <Navigate to="/cdc" />
+            : role === "ADMIN"
+            ? <Navigate to="/admin" />
+            : role === "RECRUITER"
+            ? <Navigate to="/" />
+            : <Navigate to="/" />
+        }
+      />
+
+    </Routes>
+
+  );
+
 }
 
 export default App;

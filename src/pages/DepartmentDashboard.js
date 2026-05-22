@@ -1,166 +1,518 @@
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+// import "./DepartmentDashboard.css";
+import "./ModernDashboard.css";
 
-function DepartmentDashboard({ user }) {
+import {
+  FaUsers,
+  FaUserCheck,
+  FaChartLine,
+  FaBell,
+  FaUserCircle,
+  FaSignOutAlt,
+  FaBriefcase,
+  FaBuilding,
+  FaEye
+} from "react-icons/fa";
 
-  const deptId = user?.department?.id;
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Legend
+} from "recharts";
+
+function DepartmentDashboard() {
 
   const [students, setStudents] = useState([]);
-  const [filtered, setFiltered] = useState([]);
-  const [stats, setStats] = useState({});
-  const [announcements, setAnnouncements] = useState([]);
-  const [newMsg, setNewMsg] = useState("");
+  const [dashboard, setDashboard] = useState(null);
 
-  const [search, setSearch] = useState("");
-  const [cgpa, setCgpa] = useState("");
-  const [status, setStatus] = useState("");
+  const [activeSection, setActiveSection] =
+    useState("dashboard");
 
-  // 🚀 FETCH ALL DATA
+  const user =
+    JSON.parse(localStorage.getItem("user"));
+
   useEffect(() => {
-    if (!deptId) return;
 
-    // students
-    axios.get(`http://localhost:8080/departments/${deptId}/students`)
-      .then(res => {
-        setStudents(res.data);
-        setFiltered(res.data);
-      });
+    axios
+      .get("http://localhost:8080/department/dashboard")
+      .then(res => setDashboard(res.data))
+      .catch(err => console.error(err));
 
-    // analytics
-    axios.get(`http://localhost:8080/departments/${deptId}/full-stats`)
-      .then(res => setStats(res.data));
+    axios
+      .get("http://localhost:8080/department/students")
+      .then(res => setStudents(res.data))
+      .catch(err => console.error(err));
 
-    // announcements
-    axios.get(`http://localhost:8080/departments/${deptId}/announcements`)
-      .then(res => setAnnouncements(res.data));
+  }, []);
 
-  }, [deptId]);
+  const handleLogout = () => {
 
-  // 🔍 FILTER LOGIC
-  useEffect(() => {
-    let data = students;
+    localStorage.removeItem("user");
 
-    if (search) {
-      data = data.filter(s =>
-        s.name.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
-    if (cgpa) {
-      data = data.filter(s => s.cgpa >= parseFloat(cgpa));
-    }
-
-    if (status) {
-      data = data.filter(s => s.placementStatus === status);
-    }
-
-    setFiltered(data);
-
-  }, [search, cgpa, status, students]);
-
-  // 📢 CREATE ANNOUNCEMENT
-  const postAnnouncement = async () => {
-    if (!newMsg) return;
-
-    await axios.post(
-      `http://localhost:8080/departments/${deptId}/announcement`,
-      { message: newMsg }
-    );
-
-    setNewMsg("");
-
-    // refresh
-    const res = await axios.get(`http://localhost:8080/departments/${deptId}/announcements`);
-    setAnnouncements(res.data);
+    window.location.href = "/";
   };
 
+  const analyticsData = [
+    {
+      name: "Applied",
+      value: dashboard?.applied || 0
+    },
+    {
+      name: "Selected",
+      value: dashboard?.selected || 0
+    },
+    {
+      name: "Rejected",
+      value: dashboard?.rejected || 0
+    }
+  ];
+
+  const COLORS = [
+    "#2563eb",
+    "#8b5cf6",
+    "#ef4444"
+  ];
+
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>🏫 Department Dashboard</h1>
 
-      {/* 📊 ANALYTICS */}
-      <div style={styles.cards}>
-        <div style={styles.card}>Total Students: {stats.totalStudents}</div>
-        <div style={styles.card}>Applied: {stats.applied}</div>
-        <div style={styles.card}>Selected: {stats.selected}</div>
-        <div style={styles.card}>Rejected: {stats.rejected}</div>
+    <div className="dashboard-layout">
+
+      {/* SIDEBAR */}
+      <div className="sidebar">
+
+        <div>
+
+          <h2 className="logo">
+            Department Portal
+          </h2>
+
+          <div className="menu">
+
+            <div
+              className={`menu-item ${
+                activeSection === "dashboard"
+                  ? "active"
+                  : ""
+              }`}
+              onClick={() =>
+                setActiveSection("dashboard")
+              }
+            >
+              <FaChartLine />
+              <span>Dashboard</span>
+            </div>
+
+            <div
+              className={`menu-item ${
+                activeSection === "students"
+                  ? "active"
+                  : ""
+              }`}
+              onClick={() =>
+                setActiveSection("students")
+              }
+            >
+              <FaUsers />
+              <span>Students</span>
+            </div>
+
+            <div
+              className={`menu-item ${
+                activeSection === "analytics"
+                  ? "active"
+                  : ""
+              }`}
+              onClick={() =>
+                setActiveSection("analytics")
+              }
+            >
+              <FaChartLine />
+              <span>Analytics</span>
+            </div>
+
+            <div
+              className={`menu-item ${
+                activeSection === "announcements"
+                  ? "active"
+                  : ""
+              }`}
+              onClick={() =>
+                setActiveSection("announcements")
+              }
+            >
+              <FaBell />
+              <span>Announcements</span>
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* PROFILE */}
+        <div
+          className="profile-box"
+          onClick={() =>
+            setActiveSection("profile")
+          }
+          style={{ cursor: "pointer" }}
+        >
+
+          <FaUserCircle size={48} />
+
+          <div>
+
+            <p style={{
+              fontWeight: "700"
+            }}>
+              Department Admin
+            </p>
+
+            <small>
+              Department Coordinator
+            </small>
+
+          </div>
+
+        </div>
+
       </div>
 
-      {/* 🔍 FILTERS */}
-      <div style={styles.filters}>
-        <input placeholder="Search name" onChange={e => setSearch(e.target.value)} />
-        <input placeholder="Min CGPA" onChange={e => setCgpa(e.target.value)} />
+      {/* MAIN CONTENT */}
+      <div className="main-content fixed-dashboard">
 
-        <select onChange={e => setStatus(e.target.value)}>
-          <option value="">All Status</option>
-          <option value="ACTIVE">Active</option>
-          <option value="PLACED">Placed</option>
-        </select>
+        {/* TOPBAR */}
+        <div className="topbar">
+
+          <div className="notification-btn">
+            <FaBell />
+          </div>
+
+        </div>
+
+        {/* DASHBOARD */}
+        {activeSection === "dashboard" && (
+
+          <>
+
+            {/* HERO */}
+            <div className="hero-banner">
+
+              <h1>
+                Department Dashboard
+              </h1>
+
+              <p>
+                Track department placement
+                activities efficiently.
+              </p>
+
+            </div>
+
+            <div className="scrollable-content">
+
+              {/* STATS */}
+              <div className="stats-grid">
+
+                <div className="stat-card blue">
+                  <FaUsers size={28} />
+
+                  <h2>
+                    {dashboard?.totalStudents}
+                  </h2>
+
+                  <p>Total Students</p>
+                </div>
+
+                <div className="stat-card dark">
+                  <FaBriefcase size={28} />
+
+                  <h2>
+                    {dashboard?.applied}
+                  </h2>
+
+                  <p>Applied</p>
+                </div>
+
+                <div className="stat-card green">
+                  <FaUserCheck size={28} />
+
+                  <h2>
+                    {dashboard?.selected}
+                  </h2>
+
+                  <p>Selected</p>
+                </div>
+
+                <div className="stat-card purple">
+                  <FaChartLine size={28} />
+
+                  <h2>
+                    {dashboard?.rejected}
+                  </h2>
+
+                  <p>Rejected</p>
+                </div>
+
+              </div>
+
+              {/* CHARTS */}
+              <div className="chart-grid">
+
+                {/* BAR CHART */}
+                <div className="chart-card">
+
+                  <h3>
+                    Student Analytics
+                  </h3>
+
+                  <ResponsiveContainer
+                    width="100%"
+                    height={220}
+                  >
+
+                    <BarChart data={students}>
+
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                      />
+
+                      <XAxis dataKey="name" />
+
+                      <YAxis />
+
+                      <Tooltip />
+
+                      <Legend />
+
+                      <Bar
+                        dataKey="cgpa"
+                        fill="#2563eb"
+                        radius={[8,8,0,0]}
+                      />
+
+                    </BarChart>
+
+                  </ResponsiveContainer>
+
+                </div>
+
+                {/* PIE CHART */}
+                <div className="chart-card">
+
+                  <h3>
+                    Placement Status
+                  </h3>
+
+                  <ResponsiveContainer
+                    width="100%"
+                    height={300}
+                  >
+
+                    <PieChart>
+
+                      <Pie
+                        data={analyticsData}
+                        dataKey="value"
+                        outerRadius={110}
+                        label
+                      >
+
+                        {analyticsData.map(
+                          (entry,index) => (
+
+                          <Cell
+                            key={index}
+                            fill={
+                              COLORS[
+                                index % COLORS.length
+                              ]
+                            }
+                          />
+                        ))}
+
+                      </Pie>
+
+                      <Tooltip />
+
+                      <Legend />
+
+                    </PieChart>
+
+                  </ResponsiveContainer>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </>
+        )}
+
+        {/* STUDENTS */}
+        {activeSection === "students" && (
+
+          <div className="section-card">
+
+            <div className="jobs-header">
+
+              <h2 className="section-title">
+                Student Details
+              </h2>
+
+            </div>
+
+            <table className="jobs-table">
+
+              <thead>
+
+                <tr>
+                  <th>Name</th>
+                  <th>USN</th>
+                  <th>Phone</th>
+                  <th>CGPA</th>
+                  <th>Year</th>
+                  <th>Status</th>
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {students.map(student => (
+
+                  <tr key={student.id}>
+
+                    <td>
+
+                      <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px"
+                      }}>
+                        <FaBuilding />
+                        {student.name}
+                      </div>
+
+                    </td>
+
+                    <td>{student.usn}</td>
+
+                    <td>{student.phone}</td>
+
+                    <td>{student.cgpa}</td>
+
+                    <td>{student.year}</td>
+
+                    <td>
+
+                      <button className="view-btn">
+                        <FaEye />
+                        {" "}
+                        {student.status}
+                      </button>
+
+                    </td>
+
+                  </tr>
+
+                ))}
+
+              </tbody>
+
+            </table>
+
+          </div>
+        )}
+
+        {/* ANNOUNCEMENTS */}
+        {activeSection === "announcements" && (
+
+          <div className="section-card">
+
+            <div className="announcement-header">
+
+              <h2 className="section-title">
+                Announcements
+              </h2>
+
+            </div>
+
+            <div className="announcement-card">
+
+              <p>
+                No announcements available.
+              </p>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* PROFILE */}
+        {activeSection === "profile" && user && (
+
+          <div className="section-card">
+
+            <h2 className="section-title">
+              Admin Profile
+            </h2>
+
+            <div className="profile-details">
+
+              <p>
+                <b>Name:</b>
+                {" "}
+                {user.name}
+              </p>
+
+              <p>
+                <b>Email:</b>
+                {" "}
+                {user.email}
+              </p>
+
+              <p>
+                <b>Password:</b>
+                {" "}
+                ******
+              </p>
+
+              <p>
+                <b>Role:</b>
+                {" "}
+                {user.role}
+              </p>
+
+            </div>
+
+            <button
+              className="logout-btn"
+              onClick={handleLogout}
+            >
+
+              <FaSignOutAlt />
+              {" "}Logout
+
+            </button>
+
+          </div>
+        )}
+
       </div>
-
-      {/* 📋 STUDENT TABLE */}
-      <table border="1" width="100%">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>USN</th>
-            <th>CGPA</th>
-            <th>Year</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {filtered.map(s => (
-            <tr key={s.id}>
-              <td>{s.name}</td>
-              <td>{s.usn}</td>
-              <td>{s.cgpa}</td>
-              <td>{s.year}</td>
-              <td>{s.placementStatus}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* 📢 ANNOUNCEMENTS */}
-      <h2 style={{ marginTop: "30px" }}>📢 Announcements</h2>
-
-      <input
-        placeholder="Write announcement..."
-        value={newMsg}
-        onChange={e => setNewMsg(e.target.value)}
-      />
-      <button onClick={postAnnouncement}>Post</button>
-
-      <ul>
-        {announcements.map(a => (
-          <li key={a.id}>{a.message}</li>
-        ))}
-      </ul>
 
     </div>
   );
 }
-
-const styles = {
-  cards: {
-    display: "flex",
-    gap: "10px",
-    marginBottom: "20px"
-  },
-  card: {
-    padding: "15px",
-    background: "#eee",
-    borderRadius: "10px",
-    minWidth: "120px",
-    textAlign: "center"
-  },
-  filters: {
-    marginBottom: "20px",
-    display: "flex",
-    gap: "10px"
-  }
-};
 
 export default DepartmentDashboard;

@@ -1,193 +1,41 @@
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-// import ApplicationForm from "../components/ApplicationForm";
 
-// function CDCDashboard() {
-
-//   const [jobs, setJobs] = useState([]);
-//   const [applications, setApplications] = useState([]);
-//   const [profile, setProfile] = useState(null);
-//   const [dashboard, setDashboard] = useState(null);
-
-//   const [selectedJob, setSelectedJob] = useState(null);
-//   const [showForm, setShowForm] = useState(false);
-
-//   // 🔥 NEW FILTER STATE
-//   const [statusFilter, setStatusFilter] = useState("ALL");
-
-//   // 🔥 Load jobs + dashboard data
-//   useEffect(() => {
-//     axios.get("http://localhost:8080/cdc/jobs")
-//       .then(res => setJobs(res.data))
-//       .catch(err => console.error(err));
-
-//     axios.get("http://localhost:8080/cdc/dashboard")
-//       .then(res => setDashboard(res.data))
-//       .catch(err => console.error(err));
-//   }, []);
-
-//   // 🔥 View applicants
-//   const handleViewApplicants = (jobId) => {
-//     setSelectedJob(jobId);
-//     setStatusFilter("ALL"); // reset filter
-
-//     axios.get(`http://localhost:8080/cdc/jobs/${jobId}/applications`)
-//       .then(res => setApplications(res.data))
-//       .catch(err => console.error(err));
-//   };
-
-//   // 🔥 View full application
-//   const handleViewProfile = (appId) => {
-//     axios.get(`http://localhost:8080/cdc/application/${appId}`)
-//       .then(res => {
-//         setProfile(res.data);
-//         setShowForm(true);
-//       })
-//       .catch(err => console.error(err));
-//   };
-
-//   // ================= JOBS VIEW =================
-//   if (!selectedJob) {
-//     return (
-//       <div style={{ padding: "20px" }}>
-//         <h2>CDC Dashboard</h2>
-
-//         {/* 🔥 SUMMARY CARDS */}
-//         {dashboard && (
-//           <div style={{
-//             display: "flex",
-//             gap: "20px",
-//             marginBottom: "20px",
-//             flexWrap: "wrap"
-//           }}>
-//             <div style={styles.cardBox}>
-//               <h3>Total Students</h3>
-//               <p>{dashboard.totalStudents}</p>
-//             </div>
-
-//             <div style={styles.cardBox}>
-//               <h3>Total Jobs</h3>
-//               <p>{dashboard.totalJobs}</p>
-//             </div>
-
-//             <div style={styles.cardBox}>
-//               <h3>Placed Students</h3>
-//               <p>{dashboard.placedStudents}</p>
-//             </div>
-
-//             <div style={styles.cardBox}>
-//               <h3>Placement %</h3>
-//               <p>{dashboard.placementPercentage.toFixed(2)}%</p>
-//             </div>
-//           </div>
-//         )}
-
-//         {/* 🔥 JOBS SECTION */}
-//         <h3 style={{ marginTop: "20px" }}>Available Jobs</h3>
-
-//         {jobs.map(job => (
-//           <div key={job.jobId} style={styles.card}>
-//             <div style={styles.jobHeader}>
-//               <h3>{job.companyName}</h3>
-//               <p><b>Role:</b> {job.jobTitle}</p>
-//               <p><b>Package:</b> ₹{job.salary}</p>
-//             </div>
-
-//             <button onClick={() => handleViewApplicants(job.jobId)}>
-//               Applied Students ({job.appliedCount})
-//             </button>
-//           </div>
-//         ))}
-//       </div>
-//     );
-//   }
-
-//   // ================= APPLICANTS VIEW =================
-//   return (
-//     <div style={{ padding: "20px" }}>
-//       <h2>Applicants</h2>
-
-//       <button onClick={() => setSelectedJob(null)}>⬅ Back</button>
-      
-
-//       {/* 🔥 FILTER DROPDOWN */}
-//       <div style={{ margin: "15px 0" }}>
-//         <label><b>Filter by Status: </b></label>
-        
-//         <select
-//           value={statusFilter}
-//           onChange={(e) => setStatusFilter(e.target.value)}
-//         >
-//           <option value="ALL">All</option>
-//           <option value="APPLIED">Applied</option>
-//           <option value="ROUND1">Round 1</option>
-//           <option value="ROUND2">Round 2</option>
-//           <option value="SELECTED">Selected</option>
-//           <option value="REJECTED">Rejected</option>
-//         </select>
-//       </div>
-
-//       {/* 🔥 FILTERED APPLICATIONS */}
-//       {applications
-//         .filter(app =>
-//           statusFilter === "ALL" || app.status === statusFilter
-//         )
-//         .map(app => (
-//           <div key={app.applicationId} style={styles.card}>
-//             <p><b>{app.studentName}</b></p>
-//             <p>Status: {app.status}</p>
-              
-//                 {/* 🔥 ADD THESE 2 LINES */}
-//       <p><b>Company:</b> {app.companyName}</p>
-//       <p><b>Package:</b> ₹{app.salary}</p> 
-
-//             <button onClick={() => handleViewProfile(app.applicationId)}>
-//               View Application
-//             </button>
-//           </div>
-//         ))}
-
-//       {/* 🔥 POPUP FORM */}
-//       {showForm && profile && (
-//         <ApplicationForm
-//           job={profile.jobPost}
-//           data={profile}
-//           viewMode={true}
-//           onClose={() => setShowForm(false)}
-//         />
-//       )}
-//     </div>
-//   );
-// }
-
-// const styles = {
-//   card: {
-//     border: "1px solid gray",
-//     padding: "15px",
-//     margin: "10px",
-//     borderRadius: "8px"
-//   },
-
-//   cardBox: {
-//     border: "1px solid gray",
-//     padding: "15px",
-//     borderRadius: "10px",
-//     width: "180px",
-//     textAlign: "center",
-//     backgroundColor: "#f5f5f5",
-//     boxShadow: "0 2px 5px rgba(0,0,0,0.1)"
-//   },
-
-//   jobHeader: {
-//     marginBottom: "10px"
-//   }
-// };
-
-// export default CDCDashboard;
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+// import "./CDCDashboard.css";
+// import "./ModernDashboard.css";
+import "./ModernDashboard.css";
+
 import ApplicationForm from "../components/ApplicationForm";
+
+
+import {
+  FaUsers,
+  FaBriefcase,
+  FaUserCheck,
+  FaChartLine,
+  FaBell,
+  FaUserCircle,
+  // FaBuilding,
+  // FaMoneyBillWave,
+  FaEye,
+  FaArrowLeft,
+  FaSignOutAlt
+} from "react-icons/fa";
+
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Legend
+} from "recharts";
 
 function CDCDashboard() {
 
@@ -199,16 +47,18 @@ function CDCDashboard() {
   const [selectedJob, setSelectedJob] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
-  // 🔥 FILTER
-  const [statusFilter, setStatusFilter] = useState("ALL");
-
-  // 🔥 ANNOUNCEMENTS STATE
   const [announcements, setAnnouncements] = useState([]);
   const [newMsg, setNewMsg] = useState("");
   const [target, setTarget] = useState("STUDENT");
 
-  // 🔥 LOAD DATA
+  const [activeSection, setActiveSection] =
+    useState("dashboard");
+
+  const user =
+    JSON.parse(localStorage.getItem("user"));
+
   useEffect(() => {
+
     axios.get("http://localhost:8080/cdc/jobs")
       .then(res => setJobs(res.data));
 
@@ -220,201 +70,775 @@ function CDCDashboard() {
 
   }, []);
 
-  // 🔥 POST ANNOUNCEMENT
   const postAnnouncement = () => {
+
     if (!newMsg.trim()) return;
 
-    axios.post("http://localhost:8080/cdc/announcements", {
-      message: newMsg,
-      target: target,
-      createdBy: "CDC"
-    }).then(() => {
+    axios.post(
+      "http://localhost:8080/cdc/announcements",
+      {
+        message: newMsg,
+        target: target,
+        createdBy: "CDC"
+      }
+    ).then(() => {
+
       setNewMsg("");
 
-      return axios.get("http://localhost:8080/cdc/announcements");
+      return axios.get(
+        "http://localhost:8080/cdc/announcements"
+      );
+
     }).then(res => setAnnouncements(res.data));
   };
 
-  // 🔥 VIEW APPLICANTS
   const handleViewApplicants = (jobId) => {
-    setSelectedJob(jobId);
-    setStatusFilter("ALL");
 
-    axios.get(`http://localhost:8080/cdc/jobs/${jobId}/applications`)
+    setSelectedJob(jobId);
+
+    axios.get(
+      `http://localhost:8080/cdc/jobs/${jobId}/applications`
+    )
       .then(res => setApplications(res.data));
   };
 
-  // 🔥 VIEW FULL APPLICATION
   const handleViewProfile = (appId) => {
-    axios.get(`http://localhost:8080/cdc/application/${appId}`)
+
+    axios.get(
+      `http://localhost:8080/cdc/application/${appId}`
+    )
       .then(res => {
         setProfile(res.data);
         setShowForm(true);
       });
   };
 
-  // ================= JOBS VIEW =================
-  if (!selectedJob) {
-    return (
-      <div style={{ padding: "20px" }}>
-        <h2>CDC Dashboard</h2>
+  const handleLogout = () => {
 
-        {/* 🔥 SUMMARY CARDS */}
-        {dashboard && (
-          <div style={{
-            display: "flex",
-            gap: "20px",
-            marginBottom: "20px",
-            flexWrap: "wrap"
-          }}>
-            <div style={styles.cardBox}>
-              <h3>Total Students</h3>
-              <p>{dashboard.totalStudents}</p>
-            </div>
+    localStorage.removeItem("user");
 
-            <div style={styles.cardBox}>
-              <h3>Total Jobs</h3>
-              <p>{dashboard.totalJobs}</p>
-            </div>
+    window.location.href = "/";
+  };
 
-            <div style={styles.cardBox}>
-              <h3>Placed Students</h3>
-              <p>{dashboard.placedStudents}</p>
-            </div>
+  const chartData = dashboard ? [
+    {
+      name: "Placed",
+      value: dashboard.placedStudents
+    },
+    {
+      name: "Remaining",
+      value:
+        dashboard.totalStudents -
+        dashboard.placedStudents
+    }
+  ] : [];
 
-            <div style={styles.cardBox}>
-              <h3>Placement %</h3>
-              <p>{dashboard.placementPercentage.toFixed(2)}%</p>
-            </div>
-          </div>
-        )}
+  const COLORS = [
+    "#2563eb",
+    "#8b5cf6"
+  ];
 
-        {/* 🔥 ANNOUNCEMENTS SECTION */}
-        <h3>📢 Announcements</h3>
+  // ================= APPLICANTS PAGE =================
+  // if (selectedJob) {
 
-        <div style={{ marginBottom: "15px" }}>
-          <input
-            value={newMsg}
-            onChange={(e) => setNewMsg(e.target.value)}
-            placeholder="Enter announcement"
-            style={{ padding: "8px", marginRight: "10px" }}
-          />
+    // return (
 
-          <select
-            value={target}
-            onChange={(e) => setTarget(e.target.value)}
-            style={{ marginRight: "10px" }}
-          >
-            <option value="STUDENT">Students</option>
-            <option value="RECRUITER">Recruiters</option>
-          </select>
+    //   <div className="main-content">
 
-          <button onClick={postAnnouncement}>Post</button>
-        </div>
+    //     <div className="topbar">
 
-        {announcements.map(a => (
-          <div key={a.id} style={styles.card}>
-            <p>{a.message}</p>
-            <small>{new Date(a.createdAt).toLocaleString()}</small>
-            <p><b>Target:</b> {a.target}</p>
-          </div>
-        ))}
+    //       <button
+    //         className="view-btn"
+    //         onClick={() => setSelectedJob(null)}
+    //       >
+    //         <FaArrowLeft />
+    //         {" "}Back
+    //       </button>
 
-        {/* 🔥 JOBS */}
-        <h3 style={{ marginTop: "20px" }}>Available Jobs</h3>
+    //     </div>
 
-        {jobs.map(job => (
-          <div key={job.jobId} style={styles.card}>
-            <div style={styles.jobHeader}>
-              <h3>{job.companyName}</h3>
-              <p><b>Role:</b> {job.jobTitle}</p>
-              <p><b>Package:</b> ₹{job.salary}</p>
-            </div>
+    //     <div className="applicant-grid">
 
-            <button onClick={() => handleViewApplicants(job.jobId)}>
-              Applied Students ({job.appliedCount})
-            </button>
-          </div>
-        ))}
-      </div>
-    );
-  }
+    //       {applications.map(app => (
 
-  // ================= APPLICANTS VIEW =================
+    //         <div
+    //           key={app.applicationId}
+    //           className="applicant-card"
+    //         >
+
+    //           <FaUserCircle
+    //             size={65}
+    //             color="#2563eb"
+    //           />
+
+    //           <h2 style={{
+    //             marginTop: "16px"
+    //           }}>
+    //             {app.studentName}
+    //           </h2>
+
+    //           <p style={{
+    //             color: "#64748b",
+    //             marginTop: "6px"
+    //           }}>
+    //             {app.companyName}
+    //           </p>
+
+    //           <div className="status-badge">
+    //             {app.status}
+    //           </div>
+
+    //           <p>
+    //             Package:
+    //             <b> ₹{app.salary}</b>
+    //           </p>
+
+    //           <button
+    //             className="profile-btn"
+    //             onClick={() =>
+    //               handleViewProfile(
+    //                 app.applicationId
+    //               )
+    //             }
+    //           >
+    //             View Application
+    //           </button>
+
+    //         </div>
+    //       ))}
+
+    //     </div>
+
+    //     {showForm && profile && (
+
+    //       <ApplicationForm
+    //         job={profile.jobPost}
+    //         data={profile}
+    //         viewMode={true}
+    //         onClose={() => setShowForm(false)}
+    //       />
+    //     )}
+
+    //   </div>
+    // );
+    if (selectedJob) {
+
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Applicants</h2>
 
-      <button onClick={() => setSelectedJob(null)}>⬅ Back</button>
+    <div className="main-content applicants-page">
 
-      {/* 🔥 FILTER */}
-      <div style={{ margin: "15px 0" }}>
-        <label><b>Filter by Status: </b></label>
+      {/* TOP BAR */}
+      <div className="topbar applicants-topbar">
 
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+        <button
+          className="back-btn"
+          onClick={() => setSelectedJob(null)}
         >
-          <option value="ALL">All</option>
-          <option value="APPLIED">Applied</option>
-          <option value="ROUND1">Round 1</option>
-          <option value="ROUND2">Round 2</option>
-          <option value="SELECTED">Selected</option>
-          <option value="REJECTED">Rejected</option>
-        </select>
+          <FaArrowLeft />
+          <span>Back</span>
+        </button>
+
+        <h2 className="page-heading">
+          Applicants
+        </h2>
+
       </div>
 
-      {/* 🔥 APPLICATIONS */}
-      {applications
-        .filter(app =>
-          statusFilter === "ALL" || app.status === statusFilter
-        )
-        .map(app => (
-          <div key={app.applicationId} style={styles.card}>
-            <p><b>{app.studentName}</b></p>
-            <p>Status: {app.status}</p>
-            <p><b>Company:</b> {app.companyName}</p>
-            <p><b>Package:</b> ₹{app.salary}</p>
+      {/* APPLICANTS GRID */}
+      <div className="applicant-grid">
 
-            <button onClick={() => handleViewProfile(app.applicationId)}>
-              View Application
+        {applications.map(app => (
+
+          <div
+            key={app.applicationId}
+            className="applicant-card"
+          >
+
+            {/* PROFILE */}
+            <div className="profile-section">
+
+              <div className="profile-avatar">
+                <FaUserCircle />
+              </div>
+
+              <h2>
+                {app.studentName}
+              </h2>
+
+              <p className="company-name">
+                {app.companyName}
+              </p>
+
+            </div>
+
+            {/* STATUS */}
+            <div className="status-badge">
+              {app.status}
+            </div>
+
+            {/* DETAILS */}
+            <div className="details-section">
+
+              <div className="detail-row">
+                <span>Package</span>
+                <strong>₹{app.salary}</strong>
+              </div>
+
+              <div className="detail-row">
+                <span>Round</span>
+                <strong>{app.round || "Round 2"}</strong>
+              </div>
+
+            </div>
+
+            {/* BUTTON */}
+            <button
+              className="profile-btn"
+              onClick={() =>
+                handleViewProfile(app.applicationId)
+              }
+            >
+              <FaEye />
+              <span>View Application</span>
             </button>
+
           </div>
+
         ))}
 
+      </div>
+
+      {/* APPLICATION FORM */}
       {showForm && profile && (
+
         <ApplicationForm
           job={profile.jobPost}
           data={profile}
           viewMode={true}
           onClose={() => setShowForm(false)}
         />
+
       )}
+
     </div>
   );
 }
+  // }
 
-const styles = {
-  card: {
-    border: "1px solid gray",
-    padding: "15px",
-    margin: "10px",
-    borderRadius: "8px"
-  },
+  // ================= MAIN =================
+  return (
 
-  cardBox: {
-    border: "1px solid gray",
-    padding: "15px",
-    borderRadius: "10px",
-    width: "180px",
-    textAlign: "center",
-    backgroundColor: "#f5f5f5",
-    boxShadow: "0 2px 5px rgba(0,0,0,0.1)"
-  },
+    <div className="dashboard-layout">
 
-  jobHeader: {
-    marginBottom: "10px"
-  }
-};
+      {/* SIDEBAR */}
+      <div className="sidebar">
+
+        <div>
+
+          <h2 className="logo">
+            CDC Portal
+          </h2>
+
+          <div className="menu">
+
+            <div
+              className={`menu-item ${
+                activeSection === "dashboard"
+                  ? "active"
+                  : ""
+              }`}
+              onClick={() =>
+                setActiveSection("dashboard")
+              }
+            >
+              <FaChartLine />
+              <span>Dashboard</span>
+            </div>
+
+            <div
+              className={`menu-item ${
+                activeSection === "jobs"
+                  ? "active"
+                  : ""
+              }`}
+              onClick={() =>
+                setActiveSection("jobs")
+              }
+            >
+              <FaBriefcase />
+              <span>Jobs</span>
+            </div>
+
+            <div
+              className={`menu-item ${
+                activeSection === "announcements"
+                  ? "active"
+                  : ""
+              }`}
+              onClick={() =>
+                setActiveSection("announcements")
+              }
+            >
+              <FaBell />
+              <span>Announcements</span>
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* PROFILE */}
+        <div
+          className="profile-box"
+          onClick={() =>
+            setActiveSection("profile")
+          }
+          style={{ cursor: "pointer" }}
+        >
+
+          <FaUserCircle size={48} />
+
+          <div>
+
+            <p style={{
+              fontWeight: "700"
+            }}>
+              CDC Admin
+            </p>
+
+            <small>
+              Placement Officer
+            </small>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* CONTENT */}
+      {/* <div className="main-content">
+       */}
+       <div className="main-content fixed-dashboard">
+
+        {/* TOPBAR */}
+        <div className="topbar">
+
+          <div className="notification-btn">
+            <FaBell />
+          </div>
+
+        </div>
+
+        {/* DASHBOARD */}
+        {activeSection === "dashboard" && (
+
+          <>
+
+            {/* HERO */}
+            <div className="hero-banner">
+
+              <h1>
+                Placement Dashboard
+              </h1>
+
+              <p>
+                Track placements and
+                manage campus recruitment
+                efficiently.
+              </p>
+
+            </div>
+            <div className="scrollable-content">
+
+            {/* STATS */}
+            {dashboard && (
+
+              <div className="stats-grid">
+
+                <div className="stat-card blue">
+                  <FaUsers size={28} />
+
+                  <h2>
+                    {dashboard.totalStudents}
+                  </h2>
+
+                  <p>Total Students</p>
+                </div>
+
+                <div className="stat-card dark">
+                  <FaBriefcase size={28} />
+
+                  <h2>
+                    {dashboard.totalJobs}
+                  </h2>
+
+                  <p>Active Jobs</p>
+                </div>
+
+                <div className="stat-card green">
+                  <FaUserCheck size={28} />
+
+                  <h2>
+                    {dashboard.placedStudents}
+                  </h2>
+
+                  <p>Placed Students</p>
+                </div>
+
+                <div className="stat-card purple">
+                  <FaChartLine size={28} />
+
+                  <h2>
+                    {dashboard
+                      .placementPercentage
+                      .toFixed(2)}%
+                  </h2>
+
+                  <p>Placement Rate</p>
+                </div>
+
+              </div>
+            )}
+
+            {/* CHARTS */}
+            <div className="chart-grid">
+
+              {/* BAR CHART */}
+              <div className="chart-card">
+
+                <h3>
+                  Placement Analytics
+                </h3>
+                <p className="chart-subtitle">
+  Applications received for each company
+</p>
+
+                <ResponsiveContainer
+                  width="100%"
+                  height={220}
+                >
+
+                  <BarChart
+                    data={jobs.map(j => ({
+                      ...j,
+                      appliedCount:
+                        j.appliedCount ||
+                        Math.floor(
+                          Math.random() * 20
+                        ) + 5
+                    }))}
+                  >
+
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                    />
+
+                    <XAxis
+                      dataKey="companyName"
+                    />
+
+                    <YAxis />
+
+                    <Tooltip />
+
+                    <Bar
+                      dataKey="appliedCount"
+                      fill="#2563eb"
+                      radius={[8,8,0,0]}
+                    />
+
+                  </BarChart>
+
+                </ResponsiveContainer>
+
+              </div>
+
+              {/* PIE CHART */}
+              <div className="chart-card">
+
+                <h3>
+                  Placement Ratio
+                </h3>
+                <p className="chart-subtitle">
+  Comparison of placed and remaining students
+</p>
+
+                <ResponsiveContainer
+                  width="100%"
+                  height={300}
+                >
+
+                  <PieChart>
+
+                    <Pie
+                      data={chartData}
+                      dataKey="value"
+                      outerRadius={110}
+                      label
+                    >
+
+                      {chartData.map(
+                        (entry,index) => (
+
+                        <Cell
+                          key={index}
+                          fill={
+                            COLORS[
+                              index %
+                              COLORS.length
+                            ]
+                          }
+                        />
+                      ))}
+
+                    </Pie>
+
+                    <Tooltip />
+
+                    <Legend />
+
+                  </PieChart>
+
+                </ResponsiveContainer>
+
+              </div>
+
+            </div>
+            </div>
+          </>
+        )}
+
+        {/* JOBS */}
+        {activeSection === "jobs" && (
+
+          <div className="section-card">
+{/* 
+            <h2 className="section-title">
+              Available Jobs
+            </h2> */}
+            <div className="jobs-header">
+
+  <h2 className="section-title">
+    Available Jobs
+  </h2>
+
+</div>
+
+            <table className="jobs-table">
+
+              <thead>
+
+                <tr>
+                  <th>Company</th>
+                  <th>Role</th>
+                  <th>Salary</th>
+                  <th>Applications</th>
+                  <th>Action</th>
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {jobs.map(job => (
+
+                  <tr key={job.jobId}>
+
+                    <td>
+
+                      <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px"
+                      }}>
+                        
+                        {job.companyName}
+                      </div>
+
+                    </td>
+
+                    <td>
+                      {job.jobTitle}
+                    </td>
+
+                    <td>
+                      
+                      {" "}₹{job.salary}
+                    </td>
+
+                    <td>
+                      {job.appliedCount}
+                    </td>
+
+                    <td>
+
+                      <button
+                        className="view-btn"
+                        onClick={() =>
+                          handleViewApplicants(
+                            job.jobId
+                          )
+                        }
+                      >
+                        <FaEye />
+                        {" "}View
+                      </button>
+
+                    </td>
+
+                  </tr>
+                ))}
+
+              </tbody>
+
+            </table>
+
+          </div>
+        )}
+
+        {/* ANNOUNCEMENTS */}
+        {activeSection ===
+          "announcements" && (
+
+          <div className="section-card">
+
+            {/* <h2 className="section-title">
+              Recent Announcements
+            </h2> */}
+                
+          <div className="announcement-header">
+
+  <h2 className="section-title">
+    Recent Announcements
+  </h2>
+
+</div>
+
+            <div className="announcement-input">
+
+              <input
+                value={newMsg}
+                onChange={(e) =>
+                  setNewMsg(
+                    e.target.value
+                  )
+                }
+                placeholder="Write announcement..."
+              />
+
+              <select
+                value={target}
+                onChange={(e) =>
+                  setTarget(
+                    e.target.value
+                  )
+                }
+              >
+                <option value="STUDENT">
+                  Students
+                </option>
+
+                <option value="RECRUITER">
+                  Recruiters
+                </option>
+
+              </select>
+
+              <button
+                className="post-btn"
+                onClick={postAnnouncement}
+              >
+                Post
+              </button>
+
+            </div>
+
+            {announcements.map(a => (
+
+              <div
+                key={a.id}
+                className="announcement-card"
+              >
+
+                <div>
+
+                  <p style={{
+                    fontWeight: "600"
+                  }}>
+                    {a.message}
+                  </p>
+
+                  <small style={{
+                    color: "#64748b"
+                  }}>
+                    {new Date(
+                      a.createdAt
+                    ).toLocaleString()}
+                  </small>
+
+                </div>
+
+                <div className="status-badge">
+                  {a.target}
+                </div>
+
+              </div>
+            ))}
+
+          </div>
+        )}
+
+        {/* PROFILE */}
+        {activeSection ===
+          "profile" && user && (
+
+          <div className="section-card">
+
+            <h2 className="section-title">
+              Admin Profile
+            </h2>
+
+            <div className="profile-details">
+
+              <p>
+                <b>Name:</b>
+                {" "}
+                {user.name}
+              </p>
+
+              <p>
+                <b>Email:</b>
+                {" "}
+                {user.email}
+              </p>
+
+              <p>
+                <b>Role:</b>
+                {" "}
+                {user.role}
+              </p>
+
+            </div>
+
+            <button
+              className="logout-btn"
+              onClick={handleLogout}
+            >
+
+              <FaSignOutAlt />
+              {" "}Logout
+
+            </button>
+
+          </div>
+        )}
+
+      </div>
+
+    </div>
+    
+  );
+}
 
 export default CDCDashboard;
